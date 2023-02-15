@@ -1,0 +1,22 @@
+﻿@page "/logout"
+
+@inject ILocalStorageService _localStorage;
+@inject HttpClient _apiClient;
+@inject NavigationManager _navManager;
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        string refresh = await _localStorage.GetItemAsync<string>("refresh");
+        string token = await _localStorage.GetItemAsync<string>("token");
+
+        await _localStorage.RemoveItemAsync("token");
+        await _localStorage.RemoveItemAsync("refresh");
+
+        var request = new HttpRequestMessage(HttpMethod.Post, $"{_apiClient.BaseAddress}dev/auth/logout");
+        request.Content = new StringContent(refresh);
+
+        await _apiClient.SendAsync(request);
+
+        _navManager.NavigateTo("https://foodtracker.auth.eu-west-2.amazoncognito.com/logout?client_id=7kernf23q06t1oujubvbo0ljs9&logout_uri=https://foodtracker.andrewbruce.me");
+    }
+}

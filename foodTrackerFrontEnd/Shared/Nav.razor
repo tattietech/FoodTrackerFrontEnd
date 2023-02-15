@@ -1,0 +1,12 @@
+﻿<MudNavMenu>
+    <AuthorizeView>
+        <Authorized>
+            <MudNavLink Href="/" Match="NavLinkMatch.All">Home</MudNavLink>
+            <MudNavLink Href="/counter" Match="NavLinkMatch.Prefix">Counter</MudNavLink>
+            <MudNavLink Href="/logout" Match="NavLinkMatch.Prefix">Logout</MudNavLink>
+        </Authorized>
+        <NotAuthorized>
+            <MudNavLink Href="@AuthStateProvider.LoginUrl()" Match="NavLinkMatch.Prefix">Login</MudNavLink>
+        </NotAuthorized>
+    </AuthorizeView>
+</MudNavMenu>

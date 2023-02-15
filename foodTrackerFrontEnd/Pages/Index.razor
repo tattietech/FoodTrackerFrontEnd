@@ -1,0 +1,49 @@
+﻿@page "/"
+@using foodTrackerFrontEnd.Models;
+@using foodTrackerFrontEnd.Interfaces;
+@using foodTrackerFrontEnd.Services;
+@inject NavigationManager NavigationManager
+@inject IFoodTrackerApiService<FoodItem> _foodService;
+
+<PageTitle>Home</PageTitle>
+
+<AuthorizeView>
+    <Authorized>
+        <h1>Your items</h1>
+        @if(itemsLoading)
+        {
+            <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+        }
+        else
+        {
+            @foreach (var item in items)
+            {
+                <p>@item.Name</p>
+            }
+        }
+    </Authorized>
+    <NotAuthorized>
+        Welcome to Food Expiry Tracker! Please log in to add items
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+    private IEnumerable<FoodItem> items;
+    private bool itemsLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    { 
+        var authState = await authenticationStateTask;
+        var user = authState.User;
+
+        if (user.Identity.IsAuthenticated)
+        {
+            items = new List<FoodItem>();
+            items = await _foodService.List(1);
+        }
+
+        itemsLoading = false;
+    }
+}
