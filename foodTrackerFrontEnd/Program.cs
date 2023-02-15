@@ -23,5 +23,6 @@ builder.Services.AddMudServices();
 
 builder.Services.AddScoped<IFoodTrackerApiService<FoodItem>, FoodItemService>();
 builder.Services.AddScoped<IFoodTrackerApiService<FoodStorage>, FoodStorageService>();
+builder.Services.AddScoped<IFoodStorageService, FoodStorageService>();
 
 await builder.Build().RunAsync();

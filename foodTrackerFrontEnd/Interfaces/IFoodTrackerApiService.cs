@@ -2,6 +2,6 @@
 {
     public interface IFoodTrackerApiService<T>
     {
-        Task<IEnumerable<T>> List(int household);
+        Task<IEnumerable<T>> List(string? storageId = null);
     }
 }

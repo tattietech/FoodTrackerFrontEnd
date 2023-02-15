@@ -13,13 +13,13 @@ namespace foodTrackerFrontEnd.Services
         {
             _apiClient = apiClient;
             _localStorage = localStorage;
-            _path = "/dev/food";
+            _path = "/dev/food?storageId=";
         }
-        public async Task<IEnumerable<FoodItem>> List(int household)
+        public async Task<IEnumerable<FoodItem>> List(string? storageId=null)
         {
             string token = await _localStorage.GetItemAsync<string>("token");
             _apiClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
-            return await _apiClient.GetFromJsonAsync<IEnumerable<FoodItem>>(_path);
+            return await _apiClient.GetFromJsonAsync<IEnumerable<FoodItem>>(_path+storageId);
         }
     }
 }
