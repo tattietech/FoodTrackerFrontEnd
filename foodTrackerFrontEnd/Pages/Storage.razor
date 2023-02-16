@@ -28,7 +28,7 @@
                             <MudText Typo="Typo.h6">@item.Name</MudText>
                         </CardHeaderContent>
                         <CardHeaderActions>
-                            <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" />
+                            <MudIconButton OnClick="@(() => ConfirmDelete(item.Name))" Icon="@Icons.Material.Filled.Delete" Color="Color.Error" />
                         </CardHeaderActions>
                     </MudCardHeader>
                     <MudCardContent>
@@ -89,6 +89,22 @@
         {
             this.StateHasChanged();
         }
+    }
 
+    private async void ConfirmDelete(string name)
+    {
+        DialogOptions closeOnEscapeKey = new DialogOptions() { CloseOnEscapeKey = true, MaxWidth = MaxWidth.Small, FullWidth = true };
+        var dialogParams = new DialogParameters();
+        dialogParams.Add("StorageId", storageId);
+        dialogParams.Add("ItemName", name);
+        dialogParams.Add("FoodService", _foodService);
+        var dialog = DialogService.Show<DeleteConfirm>("Confirm Delete", dialogParams, closeOnEscapeKey);
+
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            this.StateHasChanged();
+        }
     }
 }
