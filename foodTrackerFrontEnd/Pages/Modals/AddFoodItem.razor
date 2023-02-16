@@ -1,0 +1,63 @@
+﻿@using foodTrackerFrontEnd.Interfaces;
+@using foodTrackerFrontEnd.Models;
+
+<MudDialog>
+    <DialogContent>
+        <MudForm @ref="form" @bind-IsValid="@formValid">
+            <MudInputLabel>Name</MudInputLabel>
+            <MudTextField For="@(() => foodItem.Name)" Class="mb-4" @bind-Value="name" T="string" Variant="Variant.Outlined"></MudTextField>
+            <MudInputLabel>Use by or best before</MudInputLabel>
+            <MudSelect Class="mb-4" @bind-Value="usebyOrBestBefore" T="string" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter">
+                <MudSelectItem Value="@("Use by")" />
+                <MudSelectItem Value="@("Best before")" />
+            </MudSelect>
+            <MudInputLabel>Expires</MudInputLabel>
+            <MudDatePicker Class="mb-4" @bind-Date="expires" DisableToolbar="true" />
+            <MudInputLabel>Quantity</MudInputLabel>
+            <MudNumericField For="@(() => foodItem.Quantity)" Min=1 @bind-Value="quantity" Variant="Variant.Outlined" Step="1" />
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton ButtonType=ButtonType.Submit Color="Color.Primary" Disabled="@(!formValid)" OnClick="Submit">Add</MudButton>
+    </DialogActions>
+</MudDialog>
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    [Parameter] public string StorageId { get; set; }
+    [Parameter] public Storage StoragePageInstance { get; set; }
+    [Parameter] public IFoodItemService FoodService { get; set; }
+
+    private FoodItem foodItem = new();
+
+    private MudForm form;
+    private bool formValid;
+    private static List<string> selectItems => new() { "Use by", "Best before" };
+
+    private string name { get; set; }
+    private string usebyOrBestBefore { get; set; } = selectItems.First();
+    private int quantity { get; set; } = 1;
+    private DateTime? expires { get; set; } = DateTime.Now;
+
+    private async Task Submit()
+    {
+        await form.Validate();
+
+        if (!formValid)
+            return;
+
+        foodItem = new FoodItem
+        {
+            Name = name,
+            Expiry = usebyOrBestBefore == selectItems.First() ? expires.Value.ToString("yyyy-MM-dd") : null,
+            BestBefore = usebyOrBestBefore == selectItems.Last() ? expires.Value.ToString("yyyy-MM-dd") : null,
+            Quantity = quantity,
+            StorageId = StorageId
+        };
+        FoodService.LocalList.Add(foodItem);
+        MudDialog.Close(DialogResult.Ok(true));
+
+        await FoodService.Add(foodItem);
+    }
+    void Cancel() => MudDialog.Cancel();
+}

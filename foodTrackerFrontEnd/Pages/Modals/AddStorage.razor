@@ -1,0 +1,38 @@
+﻿@using foodTrackerFrontEnd.Interfaces;
+@using foodTrackerFrontEnd.Models;
+
+<MudDialog>
+    <DialogContent>
+        <MudForm @ref="form" @bind-IsValid="@formValid">
+            <MudInputLabel>Name</MudInputLabel>
+            <MudTextField For="@(() => storage.Name)" Class="mb-4" @bind-Value="storage.Name" T="string" Variant="Variant.Outlined"></MudTextField>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton ButtonType=ButtonType.Submit Color="Color.Primary" Disabled="@(!formValid)" OnClick="Submit">Add</MudButton>
+    </DialogActions>
+</MudDialog>
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+
+    [Parameter] public IFoodStorageService StorageService { get; set; }
+
+    private FoodStorage storage = new();
+
+    private MudForm form;
+    private bool formValid;
+
+    private async Task Submit()
+    {
+        await form.Validate();
+
+        if (!formValid)
+            return;
+
+        var response = await StorageService.Add(storage);
+        StorageService.LocalList.Add(response);
+        MudDialog.Close(DialogResult.Ok(true));
+    }
+    void Cancel() => MudDialog.Cancel();
+}

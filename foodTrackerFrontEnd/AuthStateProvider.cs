@@ -9,8 +9,8 @@ namespace foodTrackerFrontEnd
 {
     public class AuthStateProvider : AuthenticationStateProvider
     {
-        private const string LOGIN_URL = "https://foodtracker.auth.eu-west-2.amazoncognito.com/oauth2/authorize?client_id=7kernf23q06t1oujubvbo0ljs9&response_type=code&scope=openid&redirect_uri=https%3A%2F%2Ffoodtracker.andrewbruce.me";
-        private const string DEV_LOGIN_URL = "https://foodtracker.auth.eu-west-2.amazoncognito.com/oauth2/authorize?client_id=7kernf23q06t1oujubvbo0ljs9&response_type=code&scope=openid&redirect_uri=https%3A%2F%2Flocalhost%3A7048";
+        //private const string LOGIN_URL = "https://foodtracker.auth.eu-west-2.amazoncognito.com/oauth2/authorize?client_id=7kernf23q06t1oujubvbo0ljs9&response_type=code&scope=openid&redirect_uri=https%3A%2F%2Ffoodtracker.andrewbruce.me";
+        private const string LOGIN_URL = "https://foodtracker.auth.eu-west-2.amazoncognito.com/oauth2/authorize?client_id=7kernf23q06t1oujubvbo0ljs9&response_type=code&scope=openid&redirect_uri=https%3A%2F%2Flocalhost%3A7048";
         private NavigationManager _navManager;
         private ILocalStorageService _localStorage;
         private HttpClient _apiClient;
@@ -77,7 +77,7 @@ namespace foodTrackerFrontEnd
 
         public static string LoginUrl()
         {
-            return DEV_LOGIN_URL;
+            return LOGIN_URL;
         }
 
         private static IEnumerable<Claim> ParseClaimsFromJwt(string jwt)

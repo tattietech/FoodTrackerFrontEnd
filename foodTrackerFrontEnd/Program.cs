@@ -7,6 +7,7 @@ using foodTrackerFrontEnd.Interfaces;
 using foodTrackerFrontEnd.Models;
 using foodTrackerFrontEnd.Services;
 using MudBlazor.Services;
+using MudBlazor;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 
@@ -19,10 +20,23 @@ builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("https:/
 
 builder.Services.AddAuthorizationCore();
 builder.Services.AddBlazoredLocalStorage();
-builder.Services.AddMudServices();
+builder.Services.AddSingleton<ISnackbar, SnackbarService>();
+builder.Services.AddMudServices(config =>
+{
+    config.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.BottomLeft;
+
+    config.SnackbarConfiguration.PreventDuplicates = false;
+    config.SnackbarConfiguration.NewestOnTop = false;
+    config.SnackbarConfiguration.ShowCloseIcon = true;
+    config.SnackbarConfiguration.VisibleStateDuration = 10000;
+    config.SnackbarConfiguration.HideTransitionDuration = 500;
+    config.SnackbarConfiguration.ShowTransitionDuration = 100;
+    config.SnackbarConfiguration.SnackbarVariant = Variant.Filled;
+});
 
 builder.Services.AddScoped<IFoodTrackerApiService<FoodItem>, FoodItemService>();
 builder.Services.AddScoped<IFoodTrackerApiService<FoodStorage>, FoodStorageService>();
 builder.Services.AddScoped<IFoodStorageService, FoodStorageService>();
+builder.Services.AddScoped<IFoodItemService, FoodItemService>();
 
 await builder.Build().RunAsync();

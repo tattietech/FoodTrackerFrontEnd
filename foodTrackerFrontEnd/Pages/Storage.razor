@@ -1,8 +1,11 @@
 ﻿@page "/storage/{StorageName}"
 @using foodTrackerFrontEnd.Interfaces;
 @using foodTrackerFrontEnd.Models;
+@using foodTrackerFrontEnd.Pages.Modals;
 @inject IFoodStorageService _storageService;
-@inject IFoodTrackerApiService<FoodItem> _foodService;
+@inject IFoodItemService _foodService;
+@inject IDialogService DialogService;
+
 @inject NavigationManager _navigationManager;
 
 <h1>@System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(StorageName)</h1>
@@ -14,9 +17,25 @@
         }
         else
         {
-            @foreach (var item in items)
+            <MudButton @onclick="OpenDialog" Variant="Variant.Filled" Color="Color.Primary">
+                Add Item
+            </MudButton>
+            @foreach (var item in _foodService.LocalList)
             {
-                        <p>@item.Name</p>
+                <MudCard Class="mb-4">
+                    <MudCardHeader>
+                        <CardHeaderContent>
+                            <MudText Typo="Typo.h6">@item.Name</MudText>
+                        </CardHeaderContent>
+                        <CardHeaderActions>
+                            <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" />
+                        </CardHeaderActions>
+                    </MudCardHeader>
+                    <MudCardContent>
+                        <MudText Typo="Typo.body2">@item.GetExpiry()</MudText>
+                        <MudText Align="Align.Right">x @item.Quantity</MudText>
+                    </MudCardContent>
+                </MudCard>
             }
         }
     </Authorized>
@@ -32,14 +51,14 @@
     [CascadingParameter]
     private Task<AuthenticationState> authenticationStateTask { get; set; }
 
-    private IEnumerable<FoodItem> items;
     private bool itemsLoading = true;
+    private string storageId;
 
 
     protected override async Task OnParametersSetAsync()
     {
         itemsLoading = true;
-        var storageId = await _storageService.GetStorageId(StorageName);
+        storageId = await _storageService.GetStorageIdByName(StorageName);
         var authState = await authenticationStateTask;
         var user = authState.User;
 
@@ -50,10 +69,26 @@
 
         if (user.Identity.IsAuthenticated)
         {
-            items = new List<FoodItem>();
-            items = await _foodService.List(storageId);
+            await _foodService.List(storageId);
         }
 
         itemsLoading = false;
+    }
+
+    private async void OpenDialog()
+    {
+        DialogOptions closeOnEscapeKey = new DialogOptions() { CloseOnEscapeKey = true, MaxWidth = MaxWidth.Small, FullWidth = true };
+        var dialogParams = new DialogParameters();
+        dialogParams.Add("StorageId", storageId);
+        dialogParams.Add("FoodService", _foodService);
+        var dialog = DialogService.Show<AddFoodItem>($"Add Item to {@System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(StorageName)}", dialogParams, closeOnEscapeKey);
+
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            this.StateHasChanged();
+        }
+
     }
 }

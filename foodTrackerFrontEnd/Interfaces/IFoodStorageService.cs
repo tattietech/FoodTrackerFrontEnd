@@ -1,7 +1,9 @@
-﻿namespace foodTrackerFrontEnd.Interfaces
+﻿using foodTrackerFrontEnd.Models;
+
+namespace foodTrackerFrontEnd.Interfaces
 {
-    public interface IFoodStorageService
+    public interface IFoodStorageService : IFoodTrackerApiService<FoodStorage>
     {
-        Task<string?> GetStorageId(string name);
+        Task<string?> GetStorageIdByName(string name);
     }
 }

@@ -1,7 +1,11 @@
-﻿namespace foodTrackerFrontEnd.Interfaces
+﻿using System.Collections.ObjectModel;
+
+namespace foodTrackerFrontEnd.Interfaces
 {
     public interface IFoodTrackerApiService<T>
     {
-        Task<IEnumerable<T>> List(string? storageId = null);
+        public List<T> LocalList { get; set; }
+        Task List(string? storageId = null);
+        Task<T> Add(T item);
     }
 }

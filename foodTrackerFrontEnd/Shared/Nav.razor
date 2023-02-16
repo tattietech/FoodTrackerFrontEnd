@@ -1,24 +1,27 @@
 ﻿@using foodTrackerFrontEnd.Interfaces;
 @using foodTrackerFrontEnd.Models;
-@inject IFoodTrackerApiService<FoodStorage> _storageService;
+@using foodTrackerFrontEnd.Pages.Modals;
+@inject IFoodStorageService _storageService;
+@inject IDialogService DialogService;
 
 <MudNavMenu>
     <AuthorizeView>
         <Authorized>
             <MudNavLink Href="/" Match="NavLinkMatch.All">Home</MudNavLink>
-            <MudNavGroup Title="Storage" Expanded="false">
+            <MudNavGroup Title="Storage" Expanded="true">
                 @if (storageLoading)
                 {
                     <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
                 }
                 else
                 {
-                    @foreach (var storage in storage)
+                    @foreach (var storage in _storageService.LocalList)
                     {
-                        <MudNavLink href="@($"storage/{storage.Name.ToLower()}")" >@storage.Name</MudNavLink>
+                        <MudNavLink Bla="abc" href="@($"storage/{storage.Name.ToLower()}")" >@storage.Name</MudNavLink>
                     }
                 }
             </MudNavGroup>
+            <MudNavLink OnClick="@(() => OpenAddStorageDialog())">Add Storage</MudNavLink>
             <MudNavLink Href="#" Match="NavLinkMatch.Prefix">Account</MudNavLink>
             <MudNavLink Href="/logout" Match="NavLinkMatch.Prefix">Logout</MudNavLink>
         </Authorized>
@@ -31,7 +34,6 @@
 @code{
     [CascadingParameter]
     private Task<AuthenticationState> authenticationStateTask { get; set; }
-    private IEnumerable<FoodStorage> storage;
     private bool storageLoading = true;
 
     protected override async Task OnInitializedAsync()
@@ -41,10 +43,24 @@
 
         if (user.Identity.IsAuthenticated)
         {
-            storage = new List<FoodStorage>();
-            storage = await _storageService.List();
+            await _storageService.List();
         }
 
         storageLoading = false;
+    }
+
+    private async void OpenAddStorageDialog()
+    {
+        DialogOptions closeOnEscapeKey = new DialogOptions() { CloseOnEscapeKey = true, MaxWidth = MaxWidth.Small, FullWidth = true };
+        var dialogParams = new DialogParameters();
+        dialogParams.Add("StorageService", _storageService);
+        var dialog = DialogService.Show<AddStorage>("Add Storage", dialogParams, closeOnEscapeKey);
+
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            this.StateHasChanged();
+        }
     }
 }
