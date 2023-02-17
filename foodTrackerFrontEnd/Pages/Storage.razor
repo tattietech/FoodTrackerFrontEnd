@@ -10,18 +10,19 @@
 @inject AppState AppState
 @implements IDisposable
 
-<h1>@System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(StorageName)</h1>
 <AuthorizeView>
     <Authorized>
+        <MudButton Class="mb-4" @onclick="@(() => OpenDialog())" Variant="Variant.Filled" Color="Color.Primary">
+            Add Item
+        </MudButton>
         @if (itemsLoading)
         {
+            <div class="centered">
                 <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+            </div>
         }
-        else
+        else if(AppState.FoodItemList.Count > 0)
         {
-            <MudButton Class="mb-4" @onclick="@(() => OpenDialog())" Variant="Variant.Filled" Color="Color.Primary">
-                Add Item
-            </MudButton>
             @foreach (var item in AppState.FoodItemList)
             {
                 <MudCard Class="mb-4">
@@ -40,6 +41,10 @@
                     </MudCardContent>
                 </MudCard>
             }
+        }
+        else
+        {
+            <MudText Typo="Typo.h4">No items added yet!</MudText>
         }
     </Authorized>
     <NotAuthorized>
@@ -71,6 +76,7 @@
 
     protected override async Task OnParametersSetAsync()
     {
+        AppState.SetAppBarHeading(@System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(StorageName));
         itemsLoading = true;
         storageId = await GetStorageIdByName(StorageName);
         var authState = await authenticationStateTask;

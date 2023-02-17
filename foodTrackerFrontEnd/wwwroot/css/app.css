@@ -66,3 +66,9 @@ a, .btn-link {
 .mud-nav-item.mud-ripple.small-nav-icon svg {
     padding: 3px;
 }
+
+.centered {
+    position: fixed; /* or absolute */
+    top: 20%;
+    left: 50%;
+}

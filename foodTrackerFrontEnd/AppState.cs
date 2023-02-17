@@ -4,8 +4,10 @@ namespace foodTrackerFrontEnd
 {
     public class AppState
     {
-        public List<FoodStorage> StorageList { get; private set; }
-        public List<FoodItem> FoodItemList { get; private set; }
+        public List<FoodStorage> StorageList { get; private set; } = new List<FoodStorage>();
+        public List<FoodItem> FoodItemList { get; private set; } = new List<FoodItem>();
+
+        public string AppBarHeading { get; private set; }
 
         public event Action OnChange;
 
@@ -40,6 +42,12 @@ namespace foodTrackerFrontEnd
         public void RemoveFromFoodItemList(FoodItem item)
         {
             FoodItemList.Remove(item);
+            NotifyStateChanged();
+        }
+
+        public void SetAppBarHeading(string heading)
+        {
+            AppBarHeading = heading;
             NotifyStateChanged();
         }
 

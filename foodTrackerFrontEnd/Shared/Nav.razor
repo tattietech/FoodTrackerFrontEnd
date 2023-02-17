@@ -30,11 +30,11 @@
                     }
                 </MudNavGroup>
             </MudNavGroup>
-            <MudNavLink Href="#" Match="NavLinkMatch.Prefix">Account</MudNavLink>
-            <MudNavLink Href="/logout" Match="NavLinkMatch.Prefix">Logout</MudNavLink>
+            @*<MudNavLink Href="#" Match="NavLinkMatch.Prefix">Account</MudNavLink>*@
+            <MudNavLink Icon="@Icons.Material.Filled.Logout" Href="/logout" Match="NavLinkMatch.Prefix">Logout</MudNavLink>
         </Authorized>
         <NotAuthorized>
-            <MudNavLink Href="@AuthStateProvider.LoginUrl()" Match="NavLinkMatch.Prefix">Login</MudNavLink>
+            <MudNavLink Icon="@Icons.Material.Filled.Login" Href="@AuthStateProvider.LoginUrl()" Match="NavLinkMatch.Prefix">Login</MudNavLink>
         </NotAuthorized>
     </AuthorizeView>
 </MudNavMenu>

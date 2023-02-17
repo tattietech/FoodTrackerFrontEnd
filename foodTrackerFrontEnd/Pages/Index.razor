@@ -4,6 +4,8 @@
 @using foodTrackerFrontEnd.Services;
 @inject NavigationManager NavigationManager
 @inject IFoodTrackerApiService<FoodItem> _foodService;
+@inject AppState AppState;
+@implements IDisposable;
 
 <PageTitle>Home</PageTitle>
 
@@ -15,3 +17,16 @@
         Welcome to Food Expiry Tracker! Please log in to add items
     </NotAuthorized>
 </AuthorizeView>
+
+@code {
+    protected override void OnInitialized()
+    {
+        AppState.SetAppBarHeading("Home");
+        AppState.OnChange += StateHasChanged;
+    }
+
+    public void Dispose()
+    {        
+        AppState.OnChange -= StateHasChanged;
+    }
+}
