@@ -1,28 +1,42 @@
 ﻿@using foodTrackerFrontEnd.Interfaces;
 @using foodTrackerFrontEnd.Models;
+
+@inject AppState AppState;
+@implements IDisposable;
+@inject IFoodTrackerApiService<FoodItem> _service;
+
 <MudDialog>
     <DialogContent>
-        <MudText>Are you sure you want to delete @Item.Name</MudText>
+        <MudText>Are you sure you want to delete @Item.Name?</MudText>
         <MudText>Doing so will delete all of the items @Item.Name contains</MudText>
     </DialogContent>
     <DialogActions>
         <MudButton OnClick="Cancel">Cancel</MudButton>
-        <MudButton ButtonType=ButtonType.Submit Color="Color.Warning" OnClick="Submit">Delete</MudButton>
+        <MudButton ButtonType=ButtonType.Submit Color="Color.Error" OnClick="Submit">Delete</MudButton>
     </DialogActions>
 </MudDialog>
 
 @code {
+    protected override void OnInitialized()
+    {
+        AppState.OnChange += StateHasChanged;
+    }
+
+    public void Dispose()
+    {
+        AppState.OnChange -= StateHasChanged;
+    }
+
     [CascadingParameter] MudDialogInstance MudDialog { get; set; }
     [Parameter] public FoodStorage Item { get; set; }
-    [Parameter] public IFoodStorageService Service { get; set; }
 
     private async Task Submit()
     {
-        Service.LocalList.Remove(Item);
+        AppState.RemoveFromStorageList(Item);
 
         MudDialog.Close(DialogResult.Ok(true));
 
-        await Service.Delete(Item.Id);
+        await _service.Delete(Item.Id);
     }
 
     void Cancel() => MudDialog.Cancel();

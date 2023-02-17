@@ -13,14 +13,12 @@ using MudBlazor.Services;
 
 namespace foodTrackerFrontEnd.Services
 {
-    public class FoodItemService : IFoodItemService
+    public class FoodItemService : IFoodTrackerApiService<FoodItem>
     {
         private HttpClient _apiClient;
         private string _path;
         private ISnackbar _snackBar;
         private IApiAuthService _apiAuthService;
-
-        public List<FoodItem> LocalList { get; set; } = new List<FoodItem>();
 
         public FoodItemService(HttpClient apiClient, ISnackbar snackbar, IApiAuthService apiAuthService)
         {
@@ -51,14 +49,13 @@ namespace foodTrackerFrontEnd.Services
             }
             catch(Exception ex)
             {
-                this.LocalList.Remove(item);
                 _snackBar.Add("Something went wrong, your item has not been saved", Severity.Error);
             }
 
             return null;
         }
 
-        public async Task List(string storageId=null)
+        public async Task<IEnumerable<FoodItem>> List(string storageId=null)
         {
             string token = await _apiAuthService.GetToken();
             _apiClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
@@ -71,13 +68,14 @@ namespace foodTrackerFrontEnd.Services
                 if(!response.IsSuccessStatusCode)
                     throw new Exception();
 
-                LocalList = await response.Content.ReadFromJsonAsync<List<FoodItem>>();
-
+                return await response.Content.ReadFromJsonAsync<List<FoodItem>>();
             }
             catch(Exception ex)
             {
                 _snackBar.Add("Oops! Something went wrong, please refresh the page", Severity.Error);
             }
+
+            return null;
         }
 
         public async Task Delete(string id)

@@ -2,11 +2,13 @@
 @using foodTrackerFrontEnd.Interfaces;
 @using foodTrackerFrontEnd.Models;
 @using foodTrackerFrontEnd.Pages.Modals;
-@inject IFoodStorageService _storageService;
-@inject IFoodItemService _foodService;
+@inject IFoodTrackerApiService<FoodStorage> _storageService;
+@inject IFoodTrackerApiService<FoodItem> _foodService;
 @inject IDialogService DialogService;
-
 @inject NavigationManager _navigationManager;
+
+@inject AppState AppState
+@implements IDisposable
 
 <h1>Manage Storage</h1>
 <AuthorizeView>
@@ -17,10 +19,10 @@
         }
         else
         {
-            <MudButton @onclick="@(() => OpenDialog())" Variant="Variant.Filled" Color="Color.Primary">
+            <MudButton Class="mb-4" @onclick="@(() => OpenDialog())" Variant="Variant.Filled" Color="Color.Primary">
                 Add Item
             </MudButton>
-            @foreach (var storage in _storageService.LocalList)
+            @foreach (var storage in AppState.StorageList)
             {
                 <MudCard Class="mb-4">
                     <MudCardHeader>
@@ -42,6 +44,18 @@
 </AuthorizeView>
 
 @code {
+
+    protected override void OnInitialized()
+    {
+        AppState.OnChange += StateHasChanged;
+    }
+
+    public void Dispose()
+    {
+        AppState.OnChange -= StateHasChanged;
+    }
+
+
     [CascadingParameter]
     private Task<AuthenticationState> authenticationStateTask { get; set; }
 
@@ -55,7 +69,8 @@
 
         if (user.Identity.IsAuthenticated)
         {
-            await _storageService.List();
+            var storageList = await _storageService.List();
+            AppState.SetStorageList(storageList.ToList());
         }
 
         itemsLoading = false;
@@ -65,7 +80,6 @@
     {
         DialogOptions closeOnEscapeKey = new DialogOptions() { CloseOnEscapeKey = true, MaxWidth = MaxWidth.Small, FullWidth = true };
         var dialogParams = new DialogParameters();
-        dialogParams.Add("StorageService", _storageService);
 
         string dialogTitle = $"Add Storage";
 
@@ -90,7 +104,7 @@
         DialogOptions closeOnEscapeKey = new DialogOptions() { CloseOnEscapeKey = true, MaxWidth = MaxWidth.Small, FullWidth = true };
         var dialogParams = new DialogParameters();
         dialogParams.Add("Item", item);
-        dialogParams.Add("Service", _storageService);
+
         var dialog = DialogService.Show<StorageDeleteConfirm>("Confirm Delete", dialogParams, closeOnEscapeKey);
 
         var result = await dialog.Result;

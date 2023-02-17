@@ -2,11 +2,13 @@
 @using foodTrackerFrontEnd.Interfaces;
 @using foodTrackerFrontEnd.Models;
 @using foodTrackerFrontEnd.Pages.Modals;
-@inject IFoodStorageService _storageService;
-@inject IFoodItemService _foodService;
+@inject IFoodTrackerApiService<FoodStorage> _storageService;
+@inject IFoodTrackerApiService<FoodItem> _foodService;
 @inject IDialogService DialogService;
-
 @inject NavigationManager _navigationManager;
+
+@inject AppState AppState
+@implements IDisposable
 
 <h1>@System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(StorageName)</h1>
 <AuthorizeView>
@@ -20,7 +22,7 @@
             <MudButton Class="mb-4" @onclick="@(() => OpenDialog())" Variant="Variant.Filled" Color="Color.Primary">
                 Add Item
             </MudButton>
-            @foreach (var item in _foodService.LocalList)
+            @foreach (var item in AppState.FoodItemList)
             {
                 <MudCard Class="mb-4">
                     <MudCardHeader>
@@ -46,6 +48,17 @@
 </AuthorizeView>
 
 @code {
+    protected override void OnInitialized()
+    {
+        AppState.OnChange += StateHasChanged;
+    }
+
+    public void Dispose()
+    {
+        AppState.OnChange -= StateHasChanged;
+    }
+
+
     [Parameter]
     public string StorageName { get; set; }
 
@@ -59,7 +72,7 @@
     protected override async Task OnParametersSetAsync()
     {
         itemsLoading = true;
-        storageId = await _storageService.GetStorageIdByName(StorageName);
+        storageId = await GetStorageIdByName(StorageName);
         var authState = await authenticationStateTask;
         var user = authState.User;
 
@@ -70,10 +83,25 @@
 
         if (user.Identity.IsAuthenticated)
         {
-            await _foodService.List(storageId);
+            var foodItemList = await _foodService.List(storageId);
+            AppState.SetFoodItemList(foodItemList.ToList());
         }
 
         itemsLoading = false;
+    }
+
+    private async Task<string> GetStorageIdByName(string name)
+    {
+        if (!AppState.StorageList.Any(s => s.Name.ToLower() == name))
+        {
+            var storageList = await _storageService.List();
+            AppState.SetStorageList(storageList.ToList());
+        }
+
+        if (AppState.StorageList.Any(s => s.Name.ToLower() == name))
+            return AppState.StorageList.Where(s => s.Name.ToLower() == name).First().Id;
+
+        return null;
     }
 
     private async void OpenDialog(FoodItem item = null)
@@ -81,7 +109,7 @@
         DialogOptions closeOnEscapeKey = new DialogOptions() { CloseOnEscapeKey = true, MaxWidth = MaxWidth.Small, FullWidth = true };
         var dialogParams = new DialogParameters();
         dialogParams.Add("StorageId", storageId);
-        dialogParams.Add("FoodService", _foodService);
+
         string dialogTitle = $"Add Item to {@System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(StorageName)}";
 
         if (item != null)
@@ -105,7 +133,7 @@
         DialogOptions closeOnEscapeKey = new DialogOptions() { CloseOnEscapeKey = true, MaxWidth = MaxWidth.Small, FullWidth = true };
         var dialogParams = new DialogParameters();
         dialogParams.Add("Item", item);
-        dialogParams.Add("Service", _foodService);
+
         var dialog = DialogService.Show<DeleteConfirm>("Confirm Delete", dialogParams, closeOnEscapeKey);
 
         var result = await dialog.Result;

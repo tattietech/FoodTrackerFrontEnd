@@ -36,8 +36,7 @@ builder.Services.AddMudServices(config =>
 
 builder.Services.AddScoped<IFoodTrackerApiService<FoodItem>, FoodItemService>();
 builder.Services.AddScoped<IFoodTrackerApiService<FoodStorage>, FoodStorageService>();
-builder.Services.AddScoped<IFoodStorageService, FoodStorageService>();
-builder.Services.AddScoped<IFoodItemService, FoodItemService>();
 builder.Services.AddScoped<IApiAuthService, ApiAuthService>();
+builder.Services.AddScoped<AppState>();
 
 await builder.Build().RunAsync();
