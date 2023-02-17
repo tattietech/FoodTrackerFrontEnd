@@ -1,5 +1,8 @@
 ﻿@using foodTrackerFrontEnd.Interfaces;
 @using foodTrackerFrontEnd.Models;
+@inject IFoodTrackerApiService<FoodItem> _foodService;
+@inject AppState AppState;
+@implements IDisposable;
 
 <MudDialog>
     <DialogContent>
@@ -23,10 +26,19 @@
     </DialogActions>
 </MudDialog>
     @code {
+    protected override void OnInitialized()
+    {
+        AppState.OnChange += StateHasChanged;
+    }
+
+    public void Dispose()
+    {
+        AppState.OnChange -= StateHasChanged;
+    }
+
     [CascadingParameter] MudDialogInstance MudDialog { get; set; }
     [Parameter] public string StorageId { get; set; }
     [Parameter] public Storage StoragePageInstance { get; set; }
-    [Parameter] public IFoodItemService FoodService { get; set; }
     [Parameter] public FoodItem ItemToEdit { get; set; }
 
     private FoodItem foodItem = new();
@@ -71,14 +83,19 @@
 
         if (ItemToEdit != null)
         {
-            FoodService.LocalList.Remove(ItemToEdit);
+            AppState.RemoveFromFoodItemList(ItemToEdit);
             foodItem.Id = ItemToEdit.Id;
         }
 
-        FoodService.LocalList.Add(foodItem);
+        AppState.AddToFoodItemList(foodItem);
         MudDialog.Close(DialogResult.Ok(true));
 
-        await FoodService.Add(foodItem);
+        var response = await _foodService.Add(foodItem);
+
+        if(response is null)
+        {
+            AppState.RemoveFromFoodItemList(foodItem);
+        }
     }
     void Cancel() => MudDialog.Cancel();
 }

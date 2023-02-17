@@ -1,5 +1,8 @@
 ﻿@using foodTrackerFrontEnd.Interfaces;
 @using foodTrackerFrontEnd.Models;
+@inject AppState AppState;
+@inject IFoodTrackerApiService<FoodStorage> _storageService;
+@implements IDisposable;
 
 <MudDialog>
     <DialogContent>
@@ -13,10 +16,21 @@
         <MudButton ButtonType=ButtonType.Submit Color="Color.Primary" Disabled="@(!formValid)" OnClick="Submit">Add</MudButton>
     </DialogActions>
 </MudDialog>
+
 @code {
+    protected override void OnInitialized()
+    {
+        AppState.OnChange += StateHasChanged;
+    }
+
+    public void Dispose()
+    {
+        AppState.OnChange -= StateHasChanged;
+    }
+
+
     [CascadingParameter] MudDialogInstance MudDialog { get; set; }
 
-    [Parameter] public IFoodStorageService StorageService { get; set; }
     [Parameter] public FoodStorage StorageToEdit { get; set; }
 
     private FoodStorage storage = new();
@@ -41,12 +55,14 @@
         if (!formValid)
             return;
 
-        var response = await StorageService.Add(storage);
+        var response = await _storageService.Add(storage);
 
         if (StorageToEdit != null)
-            StorageService.LocalList.Remove(StorageToEdit);
+            AppState.RemoveFromStorageList(StorageToEdit);
 
-        StorageService.LocalList.Add(response);
+        if(response != null)
+            AppState.AddToStorageList(response);
+
         MudDialog.Close(DialogResult.Ok(true));
     }
     void Cancel() => MudDialog.Cancel();

@@ -7,13 +7,13 @@ using MudBlazor;
 
 namespace foodTrackerFrontEnd.Services
 {
-    public class FoodStorageService : IFoodStorageService
+    public class FoodStorageService : IFoodTrackerApiService<FoodStorage>
     {
         private HttpClient _apiClient;
         private string _path;
         private ISnackbar _snackBar;
         private IApiAuthService _apiAuthService;
-        public List<FoodStorage> LocalList { get; set; } = new List<FoodStorage>();
+
 
         public FoodStorageService(HttpClient apiClient, ISnackbar snackbar, IApiAuthService apiAuthService)
         {
@@ -24,7 +24,7 @@ namespace foodTrackerFrontEnd.Services
             _snackBar.Configuration.ShowTransitionDuration = 100;
             _apiAuthService = apiAuthService;
         }
-        public async Task List(string storageId = null)
+        public async Task<IEnumerable<FoodStorage>> List(string storageId = null)
         {
             string token = await _apiAuthService.GetToken();
             _apiClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
@@ -36,22 +36,14 @@ namespace foodTrackerFrontEnd.Services
 
                 if (!response.IsSuccessStatusCode)
                     throw new Exception();
-                LocalList = await response.Content.ReadFromJsonAsync<List<FoodStorage>>();
+               
+                return await response.Content.ReadFromJsonAsync<List<FoodStorage>>();
 
             }
             catch (Exception ex)
             {
                 _snackBar.Add("Oops! Something went wrong, please refresh the", Severity.Error);
             }
-        }
-
-        public async Task<string> GetStorageIdByName(string name)
-        {
-            if (!LocalList.Any(s => s.Name.ToLower() == name))
-                await List();
-
-            if (LocalList.Any(s => s.Name.ToLower() == name))
-                return LocalList.Where(s => s.Name.ToLower() == name).First().Id;
 
             return null;
         }
@@ -75,7 +67,6 @@ namespace foodTrackerFrontEnd.Services
             }
             catch (Exception ex)
             {
-                this.LocalList.Remove(item);
                 _snackBar.Add("Something went wrong, your item has not been saved", Severity.Error);
             }
 

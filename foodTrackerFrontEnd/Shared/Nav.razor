@@ -2,7 +2,10 @@
 @using foodTrackerFrontEnd.Models;
 @using foodTrackerFrontEnd.Pages.Modals;
 @inject IDialogService DialogService;
-@inject IFoodStorageService _storageService;
+@inject IFoodTrackerApiService<FoodStorage> _storageService;
+
+@inject AppState AppState
+@implements IDisposable
 
 <MudNavMenu>
     <AuthorizeView>
@@ -20,7 +23,7 @@
                     }
                     else
                     {
-                        @foreach (var storage in _storageService.LocalList)
+                        @foreach (var storage in AppState.StorageList)
                         {
                             <MudNavLink Icon="@Icons.Material.Filled.Kitchen" IconColor="Color.Success" Class="small-nav-icon" href="@($"storage/{storage.Name.ToLower()}")"> @storage.Name</MudNavLink>
                         }   
@@ -37,6 +40,16 @@
 </MudNavMenu>
 
 @code{
+    protected override void OnInitialized()
+    {
+        AppState.OnChange += StateHasChanged;
+    }
+
+    public void Dispose()
+    {
+        AppState.OnChange -= StateHasChanged;
+    }
+
     [CascadingParameter] private Task<AuthenticationState> authenticationStateTask { get; set; }
 
     private bool storageLoading = true;
@@ -48,7 +61,8 @@
 
         if (user.Identity.IsAuthenticated)
         {
-            await _storageService.List();
+            var storageList = await _storageService.List();
+            AppState.SetStorageList(storageList.ToList());
         }
 
         storageLoading = false;
@@ -58,7 +72,6 @@
     {
         DialogOptions closeOnEscapeKey = new DialogOptions() { CloseOnEscapeKey = true, MaxWidth = MaxWidth.Small, FullWidth = true };
         var dialogParams = new DialogParameters();
-        dialogParams.Add("StorageService", _storageService);
         var dialog = DialogService.Show<AddStorage>("Add Storage", dialogParams, closeOnEscapeKey);
 
         var result = await dialog.Result;
