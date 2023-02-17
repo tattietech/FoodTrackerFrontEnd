@@ -7,5 +7,7 @@ namespace foodTrackerFrontEnd.Interfaces
         public List<T> LocalList { get; set; }
         Task List(string? storageId = null);
         Task<T> Add(T item);
+
+        Task Delete(string id);
     }
 }

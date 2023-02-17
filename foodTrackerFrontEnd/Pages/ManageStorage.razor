@@ -1,4 +1,4 @@
-﻿@page "/storage/{StorageName}"
+﻿@page "/storage"
 @using foodTrackerFrontEnd.Interfaces;
 @using foodTrackerFrontEnd.Models;
 @using foodTrackerFrontEnd.Pages.Modals;
@@ -8,34 +8,30 @@
 
 @inject NavigationManager _navigationManager;
 
-<h1>@System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(StorageName)</h1>
+<h1>Manage Storage</h1>
 <AuthorizeView>
     <Authorized>
         @if (itemsLoading)
         {
-                <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+            <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
         }
         else
         {
-            <MudButton Class="mb-4" @onclick="@(() => OpenDialog())" Variant="Variant.Filled" Color="Color.Primary">
+            <MudButton @onclick="@(() => OpenDialog())" Variant="Variant.Filled" Color="Color.Primary">
                 Add Item
             </MudButton>
-            @foreach (var item in _foodService.LocalList)
+            @foreach (var storage in _storageService.LocalList)
             {
                 <MudCard Class="mb-4">
                     <MudCardHeader>
                         <CardHeaderContent>
-                            <MudText Typo="Typo.h6">@item.Name</MudText>
+                            <MudText Typo="Typo.h6">@storage.Name</MudText>
                         </CardHeaderContent>
                         <CardHeaderActions>
-                            <MudIconButton OnClick="@(() => OpenDialog(item))" Icon="@Icons.Material.Filled.Edit" Color="Color.Default" />
-                            <MudIconButton OnClick="@(() => ConfirmDelete(item))" Icon="@Icons.Material.Filled.Delete" Color="Color.Error" />
+                            <MudIconButton OnClick="@(() => OpenDialog(storage))" Icon="@Icons.Material.Filled.Edit" Color="Color.Default" />
+                            <MudIconButton OnClick="@(() => ConfirmDelete(storage))" Icon="@Icons.Material.Filled.Delete" Color="Color.Error" />
                         </CardHeaderActions>
                     </MudCardHeader>
-                    <MudCardContent>
-                        <MudText Typo="Typo.body2">@item.GetExpiry()</MudText>
-                        <MudText Align="Align.Right">x @item.Quantity</MudText>
-                    </MudCardContent>
                 </MudCard>
             }
         }
@@ -46,51 +42,40 @@
 </AuthorizeView>
 
 @code {
-    [Parameter]
-    public string StorageName { get; set; }
-
     [CascadingParameter]
     private Task<AuthenticationState> authenticationStateTask { get; set; }
 
     private bool itemsLoading = true;
-    private string storageId;
-
 
     protected override async Task OnParametersSetAsync()
     {
         itemsLoading = true;
-        storageId = await _storageService.GetStorageIdByName(StorageName);
         var authState = await authenticationStateTask;
         var user = authState.User;
 
-        if (string.IsNullOrEmpty(storageId))
-        {
-            _navigationManager.NavigateTo("/");
-        }
-
         if (user.Identity.IsAuthenticated)
         {
-            await _foodService.List(storageId);
+            await _storageService.List();
         }
 
         itemsLoading = false;
     }
 
-    private async void OpenDialog(FoodItem item = null)
+    private async void OpenDialog(FoodStorage storage = null)
     {
         DialogOptions closeOnEscapeKey = new DialogOptions() { CloseOnEscapeKey = true, MaxWidth = MaxWidth.Small, FullWidth = true };
         var dialogParams = new DialogParameters();
-        dialogParams.Add("StorageId", storageId);
-        dialogParams.Add("FoodService", _foodService);
-        string dialogTitle = $"Add Item to {@System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(StorageName)}";
+        dialogParams.Add("StorageService", _storageService);
 
-        if (item != null)
+        string dialogTitle = $"Add Storage";
+
+        if (storage != null)
         {
-            dialogParams.Add("ItemToEdit", item);
-            dialogTitle = $"Editing {item.Name}";
+            dialogParams.Add("StorageToEdit", storage);
+            dialogTitle = $"Editing {storage.Name}";
         }
 
-        var dialog = DialogService.Show<AddFoodItem>(dialogTitle, dialogParams, closeOnEscapeKey);
+        var dialog = DialogService.Show<AddStorage>(dialogTitle, dialogParams, closeOnEscapeKey);
 
         var result = await dialog.Result;
 
@@ -100,13 +85,13 @@
         }
     }
 
-    private async void ConfirmDelete(FoodItem item)
+    private async void ConfirmDelete(FoodStorage item)
     {
         DialogOptions closeOnEscapeKey = new DialogOptions() { CloseOnEscapeKey = true, MaxWidth = MaxWidth.Small, FullWidth = true };
         var dialogParams = new DialogParameters();
         dialogParams.Add("Item", item);
-        dialogParams.Add("Service", _foodService);
-        var dialog = DialogService.Show<DeleteConfirm>("Confirm Delete", dialogParams, closeOnEscapeKey);
+        dialogParams.Add("Service", _storageService);
+        var dialog = DialogService.Show<StorageDeleteConfirm>("Confirm Delete", dialogParams, closeOnEscapeKey);
 
         var result = await dialog.Result;
 

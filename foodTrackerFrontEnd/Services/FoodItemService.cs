@@ -16,25 +16,25 @@ namespace foodTrackerFrontEnd.Services
     public class FoodItemService : IFoodItemService
     {
         private HttpClient _apiClient;
-        private ILocalStorageService _localStorage;
         private string _path;
         private ISnackbar _snackBar;
+        private IApiAuthService _apiAuthService;
 
         public List<FoodItem> LocalList { get; set; } = new List<FoodItem>();
 
-        public FoodItemService(HttpClient apiClient,  ILocalStorageService localStorage, ISnackbar snackbar)
+        public FoodItemService(HttpClient apiClient, ISnackbar snackbar, IApiAuthService apiAuthService)
         {
             _apiClient = apiClient;
-            _localStorage = localStorage;
             _path = "/dev/food";
             _snackBar = snackbar;
             _snackBar.Configuration.PositionClass = Defaults.Classes.Position.BottomLeft;
             _snackBar.Configuration.ShowTransitionDuration = 100;
+            _apiAuthService = apiAuthService;
         }
 
         public async Task<FoodItem> Add(FoodItem item)
         {
-            string token = await _localStorage.GetItemAsync<string>("token");
+            string token = await _apiAuthService.GetToken();
             _apiClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
 
             var response = new HttpResponseMessage();
@@ -58,9 +58,9 @@ namespace foodTrackerFrontEnd.Services
             return null;
         }
 
-        public async Task List(string? storageId=null)
+        public async Task List(string storageId=null)
         {
-            string token = await _localStorage.GetItemAsync<string>("token");
+            string token = await _apiAuthService.GetToken();
             _apiClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
 
             var response = new HttpResponseMessage();
@@ -75,6 +75,26 @@ namespace foodTrackerFrontEnd.Services
 
             }
             catch(Exception ex)
+            {
+                _snackBar.Add("Oops! Something went wrong, please refresh the page", Severity.Error);
+            }
+        }
+
+        public async Task Delete(string id)
+        {
+            string token = await _apiAuthService.GetToken();
+            _apiClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+
+            var response = new HttpResponseMessage();
+            try
+            {
+                response = await _apiClient.DeleteAsync($"{_path}?id={id}");
+
+                if (!response.IsSuccessStatusCode)
+                    throw new Exception();
+
+            }
+            catch (Exception ex)
             {
                 _snackBar.Add("Oops! Something went wrong, please refresh the page", Severity.Error);
             }

@@ -19,25 +19,39 @@
     </DialogContent>
     <DialogActions>
         <MudButton OnClick="Cancel">Cancel</MudButton>
-        <MudButton ButtonType=ButtonType.Submit Color="Color.Primary" Disabled="@(!formValid)" OnClick="Submit">Add</MudButton>
+        <MudButton Color="Color.Primary" Disabled="@(!formValid)" OnClick="Submit">@(SubmitButtonText)</MudButton>
     </DialogActions>
 </MudDialog>
-@code {
+    @code {
     [CascadingParameter] MudDialogInstance MudDialog { get; set; }
     [Parameter] public string StorageId { get; set; }
     [Parameter] public Storage StoragePageInstance { get; set; }
     [Parameter] public IFoodItemService FoodService { get; set; }
+    [Parameter] public FoodItem ItemToEdit { get; set; }
 
     private FoodItem foodItem = new();
 
     private MudForm form;
     private bool formValid;
     private static List<string> selectItems => new() { "Use by", "Best before" };
+    private string SubmitButtonText = "Add";
 
     private string name { get; set; }
     private string usebyOrBestBefore { get; set; } = selectItems.First();
     private int quantity { get; set; } = 1;
     private DateTime? expires { get; set; } = DateTime.Now;
+
+    protected async override Task OnParametersSetAsync()
+    {
+        if(ItemToEdit != null)
+        {
+            SubmitButtonText = "Update";
+            name = ItemToEdit.Name;
+            usebyOrBestBefore = ItemToEdit.Expiry != null ? selectItems.First() : selectItems.Last();
+            quantity = ItemToEdit.Quantity;
+            expires = DateTime.Parse(ItemToEdit.Expiry != null ? ItemToEdit.Expiry : ItemToEdit.BestBefore);
+        }
+    }
 
     private async Task Submit()
     {
@@ -54,6 +68,13 @@
             Quantity = quantity,
             StorageId = StorageId
         };
+
+        if (ItemToEdit != null)
+        {
+            FoodService.LocalList.Remove(ItemToEdit);
+            foodItem.Id = ItemToEdit.Id;
+        }
+
         FoodService.LocalList.Add(foodItem);
         MudDialog.Close(DialogResult.Ok(true));
 

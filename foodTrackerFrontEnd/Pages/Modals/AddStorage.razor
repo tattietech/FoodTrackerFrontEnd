@@ -17,11 +17,22 @@
     [CascadingParameter] MudDialogInstance MudDialog { get; set; }
 
     [Parameter] public IFoodStorageService StorageService { get; set; }
+    [Parameter] public FoodStorage StorageToEdit { get; set; }
 
     private FoodStorage storage = new();
 
     private MudForm form;
     private bool formValid;
+    private string SubmitButtonText = "Add";
+
+    protected async override Task OnParametersSetAsync()
+    {
+        if (StorageToEdit != null)
+        {
+            SubmitButtonText = "Update";
+            storage = StorageToEdit;
+        }
+    }
 
     private async Task Submit()
     {
@@ -31,6 +42,10 @@
             return;
 
         var response = await StorageService.Add(storage);
+
+        if (StorageToEdit != null)
+            StorageService.LocalList.Remove(StorageToEdit);
+
         StorageService.LocalList.Add(response);
         MudDialog.Close(DialogResult.Ok(true));
     }

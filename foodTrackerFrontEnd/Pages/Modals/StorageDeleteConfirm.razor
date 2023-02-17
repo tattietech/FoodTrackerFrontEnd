@@ -3,6 +3,7 @@
 <MudDialog>
     <DialogContent>
         <MudText>Are you sure you want to delete @Item.Name</MudText>
+        <MudText>Doing so will delete all of the items @Item.Name contains</MudText>
     </DialogContent>
     <DialogActions>
         <MudButton OnClick="Cancel">Cancel</MudButton>
@@ -12,8 +13,8 @@
 
 @code {
     [CascadingParameter] MudDialogInstance MudDialog { get; set; }
-    [Parameter] public FoodItem Item { get; set; }
-    [Parameter] public IFoodItemService Service { get; set; }
+    [Parameter] public FoodStorage Item { get; set; }
+    [Parameter] public IFoodStorageService Service { get; set; }
 
     private async Task Submit()
     {
@@ -23,5 +24,6 @@
 
         await Service.Delete(Item.Id);
     }
+
     void Cancel() => MudDialog.Cancel();
 }

@@ -1,27 +1,32 @@
 ﻿@using foodTrackerFrontEnd.Interfaces;
 @using foodTrackerFrontEnd.Models;
 @using foodTrackerFrontEnd.Pages.Modals;
-@inject IFoodStorageService _storageService;
 @inject IDialogService DialogService;
+@inject IFoodStorageService _storageService;
 
 <MudNavMenu>
     <AuthorizeView>
         <Authorized>
             <MudNavLink Href="/" Match="NavLinkMatch.All">Home</MudNavLink>
             <MudNavGroup Title="Storage" Expanded="true">
-                @if (storageLoading)
-                {
-                    <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
-                }
-                else
-                {
-                    @foreach (var storage in _storageService.LocalList)
+                <MudNavLink Icon="@Icons.Material.Filled.Add" OnClick="@(() => OpenAddStorageDialog())">Add</MudNavLink>
+                <MudNavLink Match="NavLinkMatch.All" Href="/storage" Icon="@Icons.Material.Filled.EditNote">Manage</MudNavLink>
+                <MudNavGroup Icon="@Icons.Material.Filled.Kitchen" Title="Your storage" Expanded="!storageLoading">
+                    @if (storageLoading)
                     {
-                        <MudNavLink Bla="abc" href="@($"storage/{storage.Name.ToLower()}")" >@storage.Name</MudNavLink>
+                        <MudNavLink>
+                            <MudProgressCircular Class="align-center" Size="Size.Small" Color="Color.Primary" Indeterminate="true" />
+                        </MudNavLink>
                     }
-                }
+                    else
+                    {
+                        @foreach (var storage in _storageService.LocalList)
+                        {
+                            <MudNavLink Icon="@Icons.Material.Filled.Kitchen" IconColor="Color.Success" Class="small-nav-icon" href="@($"storage/{storage.Name.ToLower()}")"> @storage.Name</MudNavLink>
+                        }   
+                    }
+                </MudNavGroup>
             </MudNavGroup>
-            <MudNavLink OnClick="@(() => OpenAddStorageDialog())">Add Storage</MudNavLink>
             <MudNavLink Href="#" Match="NavLinkMatch.Prefix">Account</MudNavLink>
             <MudNavLink Href="/logout" Match="NavLinkMatch.Prefix">Logout</MudNavLink>
         </Authorized>
@@ -32,8 +37,8 @@
 </MudNavMenu>
 
 @code{
-    [CascadingParameter]
-    private Task<AuthenticationState> authenticationStateTask { get; set; }
+    [CascadingParameter] private Task<AuthenticationState> authenticationStateTask { get; set; }
+
     private bool storageLoading = true;
 
     protected override async Task OnInitializedAsync()

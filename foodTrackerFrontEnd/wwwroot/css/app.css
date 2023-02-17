@@ -59,6 +59,10 @@ a, .btn-link {
     color: white;
 }
 
-    .blazor-error-boundary::after {
-        content: "An error has occurred."
-    }
+.blazor-error-boundary::after {
+    content: "An error has occurred."
+}
+
+.mud-nav-item.mud-ripple.small-nav-icon svg {
+    padding: 3px;
+}

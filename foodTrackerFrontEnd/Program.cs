@@ -38,5 +38,6 @@ builder.Services.AddScoped<IFoodTrackerApiService<FoodItem>, FoodItemService>();
 builder.Services.AddScoped<IFoodTrackerApiService<FoodStorage>, FoodStorageService>();
 builder.Services.AddScoped<IFoodStorageService, FoodStorageService>();
 builder.Services.AddScoped<IFoodItemService, FoodItemService>();
+builder.Services.AddScoped<IApiAuthService, ApiAuthService>();
 
 await builder.Build().RunAsync();
