@@ -4,8 +4,6 @@ namespace foodTrackerFrontEnd.Models
 {
     public class FoodItem
     {
-        public int Household { get; set; }
-
         public string Id { get; set; }
 
         [Required]

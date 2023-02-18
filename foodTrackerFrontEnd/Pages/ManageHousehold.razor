@@ -1,0 +1,84 @@
+﻿@page "/household"
+@using foodTrackerFrontEnd.Interfaces;
+@using foodTrackerFrontEnd.Models;
+@using foodTrackerFrontEnd.Pages.Modals;
+@inject IHouseholdService _householdService;
+@inject IDialogService DialogService;
+@inject NavigationManager _navigationManager;
+
+@inject AppState AppState
+@implements IDisposable
+
+<AuthorizeView>
+    <Authorized>
+        @if (householdLoading)
+        {
+            <div class="centered">
+                <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+            </div>
+        }
+        else
+        {
+            <h1 class="mb-4">@household.Name</h1>
+            <h3 class="mb-4">Members -</h3>
+            @foreach (var user in household.Users)
+            {
+                <MudCard Class="mb-4">
+                        <MudCardHeader>
+                                <CardHeaderContent>
+                                    <MudText>@user.GivenName @user.FamilyName</MudText>
+                                    @if (user.IsHouseholdAdmin)
+                                    {
+                                        <MudText Align="Align.Right">Admin</MudText>
+                                    }
+                                <MudText Typo="Typo.h6">@user.Email</MudText>
+                                </CardHeaderContent>
+                                @*<CardHeaderActions>
+                                    <MudIconButton OnClick="@(() => OpenDialog(storage))" Icon="@Icons.Material.Filled.Edit" Color="Color.Default" />
+                                    <MudIconButton OnClick="@(() => ConfirmDelete(storage))" Icon="@Icons.Material.Filled.Delete" Color="Color.Error" />
+                                </CardHeaderActions>*@
+                            </MudCardHeader>
+                        </MudCard>
+            }
+        }
+    </Authorized>
+    <NotAuthorized>
+        Welcome to Food Expiry Tracker! Please log in to add items
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+
+    protected override void OnInitialized()
+    {
+        AppState.SetAppBarHeading($"Manage Houshold");
+        AppState.OnChange += StateHasChanged;
+    }
+
+    public void Dispose()
+    {
+        AppState.OnChange -= StateHasChanged;
+    }
+
+
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+
+    private bool householdLoading = true;
+
+    private Household household = new Household();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        householdLoading = true;
+        var authState = await authenticationStateTask;
+        var user = authState.User;
+
+        if (user.Identity.IsAuthenticated)
+        {
+            household = await _householdService.Get();
+        }
+
+        householdLoading = false;
+    }
+}

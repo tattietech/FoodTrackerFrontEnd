@@ -10,12 +10,11 @@
 <MudNavMenu>
     <AuthorizeView>
         <Authorized>
-            <MudNavLink Href="/" Match="NavLinkMatch.All">Home</MudNavLink>
-            <MudNavGroup Title="Storage" Expanded="true">
+            @*<MudNavLink Href="/" Match="NavLinkMatch.All">Home</MudNavLink>*@
+            <MudNavGroup Icon="@Icons.Material.Filled.Kitchen" Title="Storage" Expanded="true">
                 <MudNavLink Icon="@Icons.Material.Filled.Add" OnClick="@(() => OpenAddStorageDialog())">Add</MudNavLink>
-                <MudNavLink Match="NavLinkMatch.All" Href="/storage" Icon="@Icons.Material.Filled.EditNote">Manage</MudNavLink>
-                <MudNavGroup Icon="@Icons.Material.Filled.Kitchen" Title="Your storage" Expanded="!storageLoading">
-                    @if (storageLoading)
+                <MudNavLink Match="NavLinkMatch.All"  Href="/storage" Icon="@Icons.Material.Filled.EditNote">Manage</MudNavLink>
+                @if (storageLoading)
                     {
                         <MudNavLink>
                             <MudProgressCircular Class="align-center" Size="Size.Small" Color="Color.Primary" Indeterminate="true" />
@@ -28,9 +27,9 @@
                             <MudNavLink Icon="@Icons.Material.Filled.Kitchen" IconColor="Color.Success" Class="small-nav-icon" href="@($"storage/{storage.Name.ToLower()}")"> @storage.Name</MudNavLink>
                         }   
                     }
-                </MudNavGroup>
             </MudNavGroup>
             @*<MudNavLink Href="#" Match="NavLinkMatch.Prefix">Account</MudNavLink>*@
+            <MudNavLink Icon="@Icons.Material.Filled.House" Href="/household" Match="NavLinkMatch.Prefix">Household</MudNavLink>
             <MudNavLink Icon="@Icons.Material.Filled.Logout" Href="/logout" Match="NavLinkMatch.Prefix">Logout</MudNavLink>
         </Authorized>
         <NotAuthorized>

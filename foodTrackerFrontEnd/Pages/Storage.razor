@@ -12,9 +12,10 @@
 
 <AuthorizeView>
     <Authorized>
-        <MudButton Class="mb-4" @onclick="@(() => OpenDialog())" Variant="Variant.Filled" Color="Color.Primary">
-            Add Item
+        <MudButton StartIcon="@Icons.Material.Filled.Add" Class="mb-4" @onclick="@(() => OpenDialog())" Variant="Variant.Filled" Color="Color.Primary">
+            Add
         </MudButton>
+        <h3 class="mb-4">Items in @System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(StorageName) -</h3>
         @if (itemsLoading)
         {
             <div class="centered">

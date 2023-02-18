@@ -12,6 +12,10 @@
 
 <AuthorizeView>
     <Authorized>
+        <MudButton StartIcon="@Icons.Material.Filled.Add" Class="mb-4" @onclick="@(() => OpenDialog())" Variant="Variant.Filled" Color="Color.Primary">
+            Add
+        </MudButton>
+        <h3 class="mb-4">Your storage -</h3>
         @if (itemsLoading)
         {
             <div class="centered">
@@ -20,9 +24,6 @@
         }
         else if(AppState.StorageList.Count > 0)
         {
-            <MudButton Class="mb-4" @onclick="@(() => OpenDialog())" Variant="Variant.Filled" Color="Color.Primary">
-                Add Item
-            </MudButton>
             @foreach (var storage in AppState.StorageList)
             {
                 <MudCard Class="mb-4">
