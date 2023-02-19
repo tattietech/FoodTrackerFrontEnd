@@ -16,6 +16,10 @@
             Add
         </MudButton>
         <h3 class="mb-4">Items in @System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(StorageName) -</h3>
+        <MudSelect Value="sort" Label="Sort Items" ValueChanged="@(value => SortItems(value))" Class="mb-4 align-end" T="string" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter">
+            <MudSelectItem Value="@("Date")" />
+            <MudSelectItem Value="@("Name")" />
+        </MudSelect>
         @if (itemsLoading)
         {
             <div class="centered">
@@ -37,7 +41,7 @@
                         </CardHeaderActions>
                     </MudCardHeader>
                     <MudCardContent>
-                        <MudText Typo="Typo.body2">@item.GetExpiry()</MudText>
+                        <MudChip Color="@item.DateColor()"><MudText Typo="Typo.body2">@item.GetExpiryString()</MudText></MudChip>
                         <MudText Align="Align.Right">x @item.Quantity</MudText>
                     </MudCardContent>
                 </MudCard>
@@ -73,7 +77,7 @@
 
     private bool itemsLoading = true;
     private string storageId;
-
+    private string sort = "Date";
 
     protected override async Task OnParametersSetAsync()
     {
@@ -85,16 +89,32 @@
 
         if (string.IsNullOrEmpty(storageId))
         {
-            _navigationManager.NavigateTo("/");
+            _navigationManager.NavigateTo("/storage");
         }
 
         if (user.Identity.IsAuthenticated)
         {
             var foodItemList = await _foodService.List(storageId);
+            foodItemList = foodItemList.OrderBy(x => x.GetExpiry());
             AppState.SetFoodItemList(foodItemList.ToList());
         }
 
         itemsLoading = false;
+    }
+
+    private void SortItems(string value)
+    {
+        sort = value;
+        switch (sort)
+        {
+            case "Date":
+                AppState.SetFoodItemList(AppState.FoodItemList.OrderBy(x => x.GetExpiry()).ToList());
+                break;
+            case "Name":
+                AppState.SetFoodItemList(AppState.FoodItemList.OrderBy(x => x.Name).ToList());
+                break;
+        }
+        
     }
 
     private async Task<string> GetStorageIdByName(string name)

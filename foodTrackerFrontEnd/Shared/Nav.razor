@@ -14,6 +14,7 @@
             <MudNavGroup Icon="@Icons.Material.Filled.Kitchen" Title="Storage" Expanded="true">
                 <MudNavLink Icon="@Icons.Material.Filled.Add" OnClick="@(() => OpenAddStorageDialog())">Add</MudNavLink>
                 <MudNavLink Match="NavLinkMatch.All"  Href="/storage" Icon="@Icons.Material.Filled.EditNote">Manage</MudNavLink>
+                <MudDivider Class="my-2" />
                 @if (storageLoading)
                     {
                         <MudNavLink>
@@ -24,7 +25,7 @@
                     {
                         @foreach (var storage in AppState.StorageList)
                         {
-                            <MudNavLink Icon="@Icons.Material.Filled.Kitchen" IconColor="Color.Success" Class="small-nav-icon" href="@($"storage/{storage.Name.ToLower()}")"> @storage.Name</MudNavLink>
+                            <MudNavLink Class="small-nav-icon" href="@($"storage/{storage.Name.ToLower()}")"> @storage.Name</MudNavLink>
                         }   
                     }
             </MudNavGroup>

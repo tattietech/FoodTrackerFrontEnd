@@ -4,7 +4,7 @@
 @inject AppState AppState;
 @implements IDisposable;
 
-<MudThemeProvider />
+<MudThemeProvider Theme="FoodTrackerCustomTheme" />
 <MudDialogProvider />
 <MudSnackbarProvider />
 
@@ -43,4 +43,16 @@
     {
         _drawerOpen = !_drawerOpen;
     }
+
+    MudTheme FoodTrackerCustomTheme = new MudTheme()
+        {
+            Palette = new Palette()
+            {
+                Primary = Colors.Teal.Darken2,
+                Secondary = Colors.Blue.Darken1,
+                AppbarBackground = Colors.Teal.Darken2,
+                Success = Colors.Green.Darken1,
+                Background = Colors.Grey.Lighten5
+            },
+        };
 }

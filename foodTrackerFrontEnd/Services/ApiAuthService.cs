@@ -1,11 +1,7 @@
-﻿using foodTrackerFrontEnd.Exceptions;
-using foodTrackerFrontEnd.Interfaces;
+﻿using foodTrackerFrontEnd.Interfaces;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
-using Newtonsoft.Json.Linq;
 using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Security.Principal;
 
 namespace foodTrackerFrontEnd.Services
 {

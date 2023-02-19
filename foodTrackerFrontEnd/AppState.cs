@@ -13,12 +13,13 @@ namespace foodTrackerFrontEnd
 
         public void SetStorageList(List<FoodStorage> storage)
         {
-            StorageList = storage;
+            StorageList = storage.OrderBy(x => x.Name).ToList();
         }
 
         public void AddToStorageList(FoodStorage storage)
         {
             StorageList.Add(storage);
+            StorageList = StorageList.OrderBy(x => x.Name).ToList();
             NotifyStateChanged();
         }
 
