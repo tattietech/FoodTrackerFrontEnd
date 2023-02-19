@@ -2,6 +2,7 @@
 @using foodTrackerFrontEnd.Interfaces;
 @using foodTrackerFrontEnd.Models;
 @using foodTrackerFrontEnd.Pages.Modals;
+@using foodTrackerFrontEnd.ViewModels;
 @inject IHouseholdService _householdService;
 @inject IDialogService DialogService;
 @inject NavigationManager _navigationManager;
@@ -19,6 +20,9 @@
         }
         else
         {
+            <MudButton StartIcon="@Icons.Material.Filled.Add" Class="mb-4" @onclick="@(() => OpenDialog())" Variant="Variant.Filled" Color="Color.Primary">
+                Invite to household
+            </MudButton>
             <h1 class="mb-4">@household.Name</h1>
             <h3 class="mb-4">Members -</h3>
             @foreach (var user in household.Users)
@@ -48,7 +52,6 @@
 </AuthorizeView>
 
 @code {
-
     protected override void OnInitialized()
     {
         AppState.SetAppBarHeading($"Manage Houshold");
@@ -58,6 +61,20 @@
     public void Dispose()
     {
         AppState.OnChange -= StateHasChanged;
+    }
+
+    private async void OpenDialog()
+    {
+        DialogOptions closeOnEscapeKey = new DialogOptions() { CloseOnEscapeKey = true, MaxWidth = MaxWidth.Small, FullWidth = true };
+
+        var dialog = DialogService.Show<SendInvite>("Invite someone to your household", closeOnEscapeKey);
+
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            this.StateHasChanged();
+        }
     }
 
 

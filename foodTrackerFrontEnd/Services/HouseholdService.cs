@@ -1,8 +1,10 @@
 ﻿using foodTrackerFrontEnd.Interfaces;
 using foodTrackerFrontEnd.Models;
 using foodTrackerFrontEnd.Pages;
+using foodTrackerFrontEnd.ViewModels;
 using MudBlazor;
 using System.Net.Http.Json;
+using static MudBlazor.CategoryTypes;
 
 namespace foodTrackerFrontEnd.Services
 {
@@ -39,6 +41,51 @@ namespace foodTrackerFrontEnd.Services
                 var houseList = await response.Content.ReadFromJsonAsync<List<Household>>();
 
                 return houseList.First();
+            }
+            catch (Exception ex)
+            {
+                _snackBar.Add("Oops! Something went wrong, please refresh the page", Severity.Error);
+            }
+
+            return null;
+        }
+
+        public async Task SendInvite(HouseholdInvite invite)
+        {
+            string token = await _apiAuthService.GetToken();
+            _apiClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+
+            var response = new HttpResponseMessage();
+            try
+            {
+                response = await _apiClient.PutAsJsonAsync($"{_path}/invite", invite);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    throw new Exception();
+                }
+            }
+            catch (Exception ex)
+            {
+                _snackBar.Add("Something went wrong, your invite has not been sent", Severity.Error);
+            }
+        }
+
+        public async Task<IEnumerable<HouseholdInvite>> GetInvites()
+        {
+            string token = await _apiAuthService.GetToken();
+            _apiClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+
+            var response = new HttpResponseMessage();
+            try
+            {
+                response = await _apiClient.GetAsync($"{_path}/invite");
+
+                if (!response.IsSuccessStatusCode)
+                    throw new Exception();
+
+                return await response.Content.ReadFromJsonAsync<List<HouseholdInvite>>();
+
             }
             catch (Exception ex)
             {

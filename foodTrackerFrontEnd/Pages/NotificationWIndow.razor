@@ -1,0 +1,30 @@
+﻿@using foodTrackerFrontEnd.ViewModels;
+
+<MudPaper Width="500px">
+    <MudList Clickable="true">
+        @if (notificationLoaded)
+        {
+            @foreach (var invite in Invites)
+            {
+                <MudListItem>@invite.From.GivenName @invite.From.FamilyName has invited you to join their household!</MudListItem>
+            }
+        }
+        else
+        {
+            <MudListItem>
+                <MudProgressCircular Class="align-center" Size="Size.Small" Color="Color.Primary" Indeterminate="true" />
+            </MudListItem>
+        }
+    </MudList>
+</MudPaper>
+
+@code {
+    [Parameter] public List<HouseholdInvite> Invites { get; set; }
+
+    private bool notificationLoaded = false;
+
+    protected override void OnParametersSet()
+    {
+        notificationLoaded = true;
+    }
+}

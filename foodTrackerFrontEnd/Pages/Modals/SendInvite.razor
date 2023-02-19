@@ -1,0 +1,52 @@
+﻿@using foodTrackerFrontEnd.Interfaces;
+@using foodTrackerFrontEnd.Models;
+@using foodTrackerFrontEnd.ViewModels;
+@inject AppState AppState;
+@inject IHouseholdService _householdService;
+@implements IDisposable;
+
+<MudDialog>
+    <DialogContent>
+        <MudForm @ref="form" @bind-IsValid="@formValid">
+            <MudInputLabel>Email</MudInputLabel>
+            <MudTextField For="@(() => invite.Email)" Class="mb-4" @bind-Value="invite.Email" T="string" Variant="Variant.Outlined"></MudTextField>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton ButtonType=ButtonType.Submit Color="Color.Primary" Disabled="@(!formValid)" OnClick="Submit">Send</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    protected override void OnInitialized()
+    {
+        AppState.OnChange += StateHasChanged;
+    }
+
+    public void Dispose()
+    {
+        AppState.OnChange -= StateHasChanged;
+    }
+
+
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+
+
+    private MudForm form;
+    private bool formValid;
+    private HouseholdInvite invite = new HouseholdInvite();
+
+    private async Task Submit()
+    {
+        await form.Validate();
+
+        if (!formValid)
+            return;
+
+        await _householdService.SendInvite(invite);
+
+        MudDialog.Close(DialogResult.Ok(true));
+    }
+    void Cancel() => MudDialog.Cancel();
+}

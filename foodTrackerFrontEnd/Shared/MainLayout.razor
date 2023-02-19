@@ -1,10 +1,13 @@
 ﻿@using foodTrackerFrontEnd.Interfaces;
 @using foodTrackerFrontEnd.Models;
+@using foodTrackerFrontEnd.Pages
+@using foodTrackerFrontEnd.ViewModels;
 @inherits LayoutComponentBase;
 @inject AppState AppState;
 @implements IDisposable;
+@inject IHouseholdService _householdService;
 
-<MudThemeProvider Theme="FoodTrackerCustomTheme" />
+<MudThemeProvider Theme="FoodTrackerCustomTheme"/>
 <MudDialogProvider />
 <MudSnackbarProvider />
 
@@ -15,7 +18,10 @@
         </MudHidden>
         <MudText Typo="Typo.h5" Class="ml-3">@AppState.AppBarHeading</MudText>
         <MudSpacer />
-        @*<MudIconButton Icon="@Icons.Material.Filled.MoreVert" Color="Color.Inherit" Edge="Edge.End" />*@
+        <MudIconButton Icon="@Icons.Material.Filled.Notifications" Variant="Variant.Filled" Color="Color.Warning" OnClick="@(() => GetInvites())" />
+	    <MudPopover Open="@_isOpen" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight">
+		    <NotificationWIndow Invites="@invites" />
+	    </MudPopover>
     </MudAppBar>
     <MudDrawer @bind-Open="_drawerOpen" ClipMode="DrawerClipMode.Always" Elevation="2">
         <Nav />
@@ -27,7 +33,9 @@
     </MudMainContent>
 </MudLayout>
 @code {
-    protected override void OnInitialized()
+    private bool _isOpen = false;
+
+    protected async override Task OnInitializedAsync()
     {
         AppState.OnChange += StateHasChanged;
     }
@@ -42,6 +50,19 @@
     void DrawerToggle()
     {
         _drawerOpen = !_drawerOpen;
+    }
+
+    private List<HouseholdInvite> invites = new();
+    private async Task GetInvites()
+    {
+        _isOpen = !_isOpen;
+
+        if (_isOpen)
+        {
+            var response = await _householdService.GetInvites();
+            invites = response.ToList();
+            this.StateHasChanged();
+        }
     }
 
     MudTheme FoodTrackerCustomTheme = new MudTheme()
