@@ -44,6 +44,8 @@
         if (!formValid)
             return;
 
+        invite.From = new User();
+
         await _householdService.SendInvite(invite);
 
         MudDialog.Close(DialogResult.Ok(true));

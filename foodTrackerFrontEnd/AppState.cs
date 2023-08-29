@@ -7,9 +7,16 @@ namespace foodTrackerFrontEnd
         public List<FoodStorage> StorageList { get; private set; } = new List<FoodStorage>();
         public List<FoodItem> FoodItemList { get; private set; } = new List<FoodItem>();
 
+        public User CurrentUser { get; private set; } = new User();
+
         public string AppBarHeading { get; private set; }
 
         public event Action OnChange;
+
+        public void SetCurrentUser(User user)
+        {
+            CurrentUser = user;
+        }
 
         public void SetStorageList(List<FoodStorage> storage)
         {

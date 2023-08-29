@@ -1,12 +1,41 @@
 ﻿@using foodTrackerFrontEnd.ViewModels;
+@using foodTrackerFrontEnd.Interfaces;
+@using foodTrackerFrontEnd.Models;
+
+@inject AppState AppState;
+@implements IDisposable;
+@inject IHouseholdService _service;
+
 
 <MudPaper Width="500px">
-    <MudList Clickable="true">
+    <MudList Clickable="false">
         @if (notificationLoaded)
         {
-            @foreach (var invite in Invites)
+            if (Invites.Count() > 0)
             {
-                <MudListItem>@invite.From.GivenName @invite.From.FamilyName has invited you to join their household!</MudListItem>
+                foreach (var invite in Invites)
+                {
+                    <MudListItem Icon="@Icons.Material.Filled.Inbox">
+                        @invite.From.GivenName @invite.From.FamilyName has invited you to join their household!
+                        @if (invite.Accepted)
+                        {
+                            <MudText Color="Color.Success">Accepted</MudText>
+                        }
+                        else
+                        {
+                            <MudButton Variant="Variant.Filled" Color="Color.Success" @onclick="@(() => AcceptInvite(invite.Email))">
+                                Accept
+                            </MudButton>
+                            <MudButton Variant="Variant.Filled" Color="Color.Error">
+                                Decline
+                            </MudButton>
+                        }
+                    </MudListItem>
+                }
+            }
+            else
+            {
+                <MudText Class="pt-2 ps-2 pe-2 pb-2">You don't have any notifications!</MudText>
             }
         }
         else
@@ -26,5 +55,16 @@
     protected override void OnParametersSet()
     {
         notificationLoaded = true;
+    }
+
+    public void Dispose()
+    {
+        AppState.OnChange -= StateHasChanged;
+    }
+
+    private async Task AcceptInvite(string inviteId)
+    {
+        await _service.AcceptInvite(inviteId);
+        AppState.OnChange += StateHasChanged;
     }
 }

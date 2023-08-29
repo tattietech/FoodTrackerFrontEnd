@@ -12,14 +12,21 @@
 
 <AuthorizeView>
     <Authorized>
-        <MudButton StartIcon="@Icons.Material.Filled.Add" Class="mb-4" @onclick="@(() => OpenDialog())" Variant="Variant.Filled" Color="Color.Primary">
-            Add
-        </MudButton>
+        <MudGrid Class="align-center" Justify="Justify.Center">
+            <MudItem  xs="6">
+                <MudButton StartIcon="@Icons.Material.Filled.Add" @onclick="@(() => OpenDialog())" Variant="Variant.Filled" Color="Color.Primary">
+                    Add
+                </MudButton>
+            </MudItem>
+            <MudItem xs="6">
+                <MudSelect  Value="sort" Label="Sort Items" ValueChanged="@(value => SortItems(value))" T="string" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter">
+                    <MudSelectItem Value="@("Date")" />
+                    <MudSelectItem Value="@("Name")" />
+                </MudSelect>
+            </MudItem>
+        </MudGrid>
+        
         <h3 class="mb-4">Items in @System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(StorageName) -</h3>
-        <MudSelect Value="sort" Label="Sort Items" ValueChanged="@(value => SortItems(value))" Class="mb-4 align-end" T="string" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter">
-            <MudSelectItem Value="@("Date")" />
-            <MudSelectItem Value="@("Name")" />
-        </MudSelect>
         @if (itemsLoading)
         {
             <div class="centered">

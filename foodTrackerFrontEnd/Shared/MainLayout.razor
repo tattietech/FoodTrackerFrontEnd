@@ -18,7 +18,7 @@
         </MudHidden>
         <MudText Typo="Typo.h5" Class="ml-3">@AppState.AppBarHeading</MudText>
         <MudSpacer />
-        <MudIconButton Icon="@Icons.Material.Filled.Notifications" Variant="Variant.Filled" Color="Color.Warning" OnClick="@(() => GetInvites())" />
+        <MudIconButton Icon="@Icons.Material.Filled.Notifications" Variant="Variant.Text" Color="Color.Info" OnClick="@(() => GetInvites())" />
 	    <MudPopover Open="@_isOpen" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight">
 		    <NotificationWIndow Invites="@invites" />
 	    </MudPopover>
@@ -73,7 +73,9 @@
                 Secondary = Colors.Blue.Darken1,
                 AppbarBackground = Colors.Teal.Darken2,
                 Success = Colors.Green.Darken1,
-                Background = Colors.Grey.Lighten5
+                Background = Colors.Grey.Lighten5,
+                Info = Colors.Shades.White
+
             },
         };
 }

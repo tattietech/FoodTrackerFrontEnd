@@ -6,6 +6,7 @@
 @inject IHouseholdService _householdService;
 @inject IDialogService DialogService;
 @inject NavigationManager _navigationManager;
+@inject IUserService _userService;
 
 @inject AppState AppState
 @implements IDisposable
@@ -20,9 +21,18 @@
         }
         else
         {
-            <MudButton StartIcon="@Icons.Material.Filled.Add" Class="mb-4" @onclick="@(() => OpenDialog())" Variant="Variant.Filled" Color="Color.Primary">
-                Invite to household
-            </MudButton>
+            if (households.Count() > 1)
+            {
+                <MudButton StartIcon="@Icons.Material.Filled.SwapHoriz" Class="mb-4 mr-2" @onclick="@(() => SwitchHousehold())" Variant="Variant.Filled" Color="Color.Primary">
+                    Switch Household
+                </MudButton>
+            }
+            @if (currentUser.IsHouseholdAdmin)
+            {
+                <MudButton StartIcon="@Icons.Material.Filled.PersonAdd" Class="mb-4" @onclick="@(() => OpenDialog())" Variant="Variant.Filled" Color="Color.Primary">
+                    Invite to household
+                </MudButton>
+            }
             <h1 class="mb-4">@household.Name</h1>
             <h3 class="mb-4">Members -</h3>
             @foreach (var user in household.Users)
@@ -52,10 +62,13 @@
 </AuthorizeView>
 
 @code {
-    protected override void OnInitialized()
+    protected async override void OnInitialized()
     {
         AppState.SetAppBarHeading($"Manage Houshold");
         AppState.OnChange += StateHasChanged;
+
+        await _userService.SetCurrentUser();
+        var u = AppState.CurrentUser;
     }
 
     public void Dispose()
@@ -85,6 +98,10 @@
 
     private Household household = new Household();
 
+    private List<Household> households = new List<Household>();
+
+    private User currentUser = new User();
+
     protected override async Task OnParametersSetAsync()
     {
         householdLoading = true;
@@ -93,9 +110,27 @@
 
         if (user.Identity.IsAuthenticated)
         {
-            household = await _householdService.Get();
+            var householdResponse = await _householdService.Get();
+            households = householdResponse.ToList();
+            household = households.First();
+
+            foreach (var u in household.Users)
+            {
+                if (AppState.CurrentUser.Username == u.Username)
+                {
+                    AppState.SetCurrentUser(u);
+                }
+            }
+
+            currentUser = AppState.CurrentUser;
         }
 
         householdLoading = false;
+    }
+
+    private async Task SwitchHousehold()
+    {
+        await _householdService.Switch();
+        _navigationManager.NavigateTo($"{_navigationManager.BaseUri}household", true);
     }
 }

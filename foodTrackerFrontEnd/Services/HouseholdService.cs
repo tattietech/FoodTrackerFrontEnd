@@ -3,6 +3,7 @@ using foodTrackerFrontEnd.Models;
 using foodTrackerFrontEnd.Pages;
 using foodTrackerFrontEnd.ViewModels;
 using MudBlazor;
+using System.ComponentModel;
 using System.Net.Http.Json;
 using static MudBlazor.CategoryTypes;
 
@@ -25,7 +26,7 @@ namespace foodTrackerFrontEnd.Services
             _apiAuthService = apiAuthService;
         }
 
-        public async Task<Household> Get()
+        public async Task<IEnumerable<Household>> Get()
         {
             string token = await _apiAuthService.GetToken();
             _apiClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
@@ -40,7 +41,7 @@ namespace foodTrackerFrontEnd.Services
 
                 var houseList = await response.Content.ReadFromJsonAsync<List<Household>>();
 
-                return houseList.First();
+                return houseList;
             }
             catch (Exception ex)
             {
@@ -93,6 +94,69 @@ namespace foodTrackerFrontEnd.Services
             }
 
             return null;
+        }
+
+        public async Task AcceptInvite(string inviteId)
+        {
+            string token = await _apiAuthService.GetToken();
+            _apiClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+
+            var response = new HttpResponseMessage();
+            try
+            {
+                response = await _apiClient.PutAsync($"{_path}/invite?inviteId={inviteId}&accept=true", null);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    throw new Exception();
+                }
+            }
+            catch (Exception ex)
+            {
+                _snackBar.Add("Something went wrong, the invite has not been accepted", Severity.Error);
+            }
+        }
+
+        public async Task DeclineInvite(string inviteId)
+        {
+            string token = await _apiAuthService.GetToken();
+            _apiClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+
+            var response = new HttpResponseMessage();
+            try
+            {
+                response = await _apiClient.PutAsync($"{_path}/invite?inviteId={inviteId}&accepted=false", null);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    throw new Exception();
+                }
+            }
+            catch (Exception ex)
+            {
+                _snackBar.Add("Something went wrong, the invite has not been accepted", Severity.Error);
+            }
+        }
+
+        public async Task Switch()
+        {
+            string token = await _apiAuthService.GetToken();
+            _apiClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+
+            var response = new HttpResponseMessage();
+            try
+            {
+                response = await _apiClient.PutAsync($"{_path}?switch=true", null);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    throw new Exception();
+                }
+            }
+            catch (Exception ex)
+            {
+                _snackBar.Add("Something went wrong, could not switch household", Severity.Error);
+            }
         }
     }
 }
