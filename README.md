@@ -1,6 +1,6 @@
 # Food Tracker Front End
 
-⚠️ **This project is no longer maintained and will not be used further.**
+> **⚠️Note:** This project is no longer maintained and will not be used further.
 
 ## Overview
 
