@@ -26,7 +26,7 @@ namespace foodTrackerFrontEnd.Services
             _apiAuthService = apiAuthService;
         }
 
-        public async Task<IEnumerable<Household>> Get()
+        public async Task<Household> Get()
         {
             string token = await _apiAuthService.GetToken();
             _apiClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
@@ -39,9 +39,7 @@ namespace foodTrackerFrontEnd.Services
                 if (!response.IsSuccessStatusCode)
                     throw new Exception();
 
-                var houseList = await response.Content.ReadFromJsonAsync<List<Household>>();
-
-                return houseList;
+                return await response.Content.ReadFromJsonAsync<Household>();
             }
             catch (Exception ex)
             {
@@ -138,7 +136,7 @@ namespace foodTrackerFrontEnd.Services
             }
         }
 
-        public async Task Switch()
+        public async Task Switch(string id)
         {
             string token = await _apiAuthService.GetToken();
             _apiClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
@@ -146,7 +144,7 @@ namespace foodTrackerFrontEnd.Services
             var response = new HttpResponseMessage();
             try
             {
-                response = await _apiClient.PutAsync($"{_path}?switch=true", null);
+                response = await _apiClient.PutAsync($"{_path}?switch={id}", null);
 
                 if (!response.IsSuccessStatusCode)
                 {

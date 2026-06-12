@@ -9,7 +9,7 @@
     <DialogContent>
         <MudForm @ref="form" @bind-IsValid="@formValid">
             <MudInputLabel>Email</MudInputLabel>
-            <MudTextField For="@(() => invite.Email)" Class="mb-4" @bind-Value="invite.Email" T="string" Variant="Variant.Outlined"></MudTextField>
+            <MudTextField For="@(() => invite.Recipient)" Class="mb-4" @bind-Value="invite.Recipient" T="string" Variant="Variant.Outlined"></MudTextField>
         </MudForm>
     </DialogContent>
     <DialogActions>

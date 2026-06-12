@@ -32,7 +32,13 @@ namespace foodTrackerFrontEnd.Services
             var response = new HttpResponseMessage();
             try
             {
-                response = await _apiClient.GetAsync($"{_path}?storageId={storageId}");
+                var path = _path;
+                if (storageId != null)
+                {
+                    path += "?storageId={storageId}";
+                }
+
+                response = await _apiClient.GetAsync(path);
 
                 if (!response.IsSuccessStatusCode)
                     throw new Exception();

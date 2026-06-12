@@ -16,6 +16,7 @@ namespace foodTrackerFrontEnd
         public void SetCurrentUser(User user)
         {
             CurrentUser = user;
+            NotifyStateChanged();
         }
 
         public void SetStorageList(List<FoodStorage> storage)

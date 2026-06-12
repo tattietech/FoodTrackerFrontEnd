@@ -5,6 +5,7 @@
 @inject AppState AppState;
 @implements IDisposable;
 @inject IHouseholdService _service;
+@inject NavigationManager _navigationManager;
 
 
 <MudPaper Width="500px">
@@ -23,7 +24,7 @@
                         }
                         else
                         {
-                            <MudButton Variant="Variant.Filled" Color="Color.Success" @onclick="@(() => AcceptInvite(invite.Email))">
+                            <MudButton Variant="Variant.Filled" Color="Color.Success" @onclick="@(() => AcceptInvite(invite.Id))">
                                 Accept
                             </MudButton>
                             <MudButton Variant="Variant.Filled" Color="Color.Error">
@@ -65,6 +66,6 @@
     private async Task AcceptInvite(string inviteId)
     {
         await _service.AcceptInvite(inviteId);
-        AppState.OnChange += StateHasChanged;
+        _navigationManager.NavigateTo($"{_navigationManager.BaseUri}household", true);
     }
 }

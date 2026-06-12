@@ -18,10 +18,13 @@
         </MudHidden>
         <MudText Typo="Typo.h5" Class="ml-3">@AppState.AppBarHeading</MudText>
         <MudSpacer />
-        <MudIconButton Icon="@Icons.Material.Filled.Notifications" Variant="Variant.Text" Color="Color.Info" OnClick="@(() => GetInvites())" />
-	    <MudPopover Open="@_isOpen" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight">
-		    <NotificationWIndow Invites="@invites" />
-	    </MudPopover>
+        @if (isAuthenticated)
+        {
+            <MudIconButton Icon="@Icons.Material.Filled.Notifications" Variant="Variant.Text" Color="Color.Info" OnClick="@(() => GetInvites())" />
+            <MudPopover Open="@_isOpen" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight">
+                <NotificationWIndow Invites="@invites" />
+            </MudPopover>
+        }
     </MudAppBar>
     <MudDrawer @bind-Open="_drawerOpen" ClipMode="DrawerClipMode.Always" Elevation="2">
         <Nav />
@@ -33,11 +36,27 @@
     </MudMainContent>
 </MudLayout>
 @code {
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+
+
     private bool _isOpen = false;
+    private bool isAuthenticated = false;
 
     protected async override Task OnInitializedAsync()
     {
         AppState.OnChange += StateHasChanged;
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        var authState = await authenticationStateTask;
+        var user = authState.User;
+
+        if (user.Identity.IsAuthenticated)
+        {
+            isAuthenticated = true;
+        }
     }
 
     public void Dispose()

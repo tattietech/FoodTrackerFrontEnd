@@ -21,13 +21,19 @@
         }
         else
         {
-            if (households.Count() > 1)
+            if (AppState.CurrentUser.Households.Count() > 1)
             {
-                <MudButton StartIcon="@Icons.Material.Filled.SwapHoriz" Class="mb-4 mr-2" @onclick="@(() => SwitchHousehold())" Variant="Variant.Filled" Color="Color.Primary">
+                <MudSelect Value="@selectedHousehold" ValueChanged="@((string value) => SwitchHousehold(value))" Label="Switch Household" Class="mb-4" T="string" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter">
+                    @foreach (var household in AppState.CurrentUser.Households)
+                    {
+                        <MudSelectItem Value=household.Id>@household.Name</MudSelectItem>
+                    }
+                </MudSelect>
+                @* <MudButton StartIcon="@Icons.Material.Filled.SwapHoriz" Class="mb-4 mr-2" @onclick="@(() => SwitchHousehold())" Variant="Variant.Filled" Color="Color.Primary">
                     Switch Household
-                </MudButton>
+                </MudButton> *@
             }
-            @if (currentUser.IsHouseholdAdmin)
+            if (AppState.CurrentUser.IsHouseholdAdmin(household.Id))
             {
                 <MudButton StartIcon="@Icons.Material.Filled.PersonAdd" Class="mb-4" @onclick="@(() => OpenDialog())" Variant="Variant.Filled" Color="Color.Primary">
                     Invite to household
@@ -40,8 +46,15 @@
                 <MudCard Class="mb-4">
                         <MudCardHeader>
                                 <CardHeaderContent>
+                            @if (user.Email == AppState.CurrentUser.Email)
+                                {
+                                    <MudText>@user.GivenName @user.FamilyName (You)</MudText>
+                                }
+                                else
+                                {
                                     <MudText>@user.GivenName @user.FamilyName</MudText>
-                                    @if (user.IsHouseholdAdmin)
+                                }
+                                @if (user.IsHouseholdAdmin(household.Id))
                                     {
                                         <MudText Align="Align.Right">Admin</MudText>
                                     }
@@ -64,11 +77,13 @@
 @code {
     protected async override void OnInitialized()
     {
-        AppState.SetAppBarHeading($"Manage Houshold");
-        AppState.OnChange += StateHasChanged;
+        householdLoading = true;
+
+        AppState.SetAppBarHeading($"Manage Household");
 
         await _userService.SetCurrentUser();
-        var u = AppState.CurrentUser;
+
+        AppState.OnChange += StateHasChanged;
     }
 
     public void Dispose()
@@ -98,39 +113,29 @@
 
     private Household household = new Household();
 
-    private List<Household> households = new List<Household>();
-
-    private User currentUser = new User();
+    private string selectedHousehold { get; set; }
 
     protected override async Task OnParametersSetAsync()
     {
-        householdLoading = true;
         var authState = await authenticationStateTask;
         var user = authState.User;
 
         if (user.Identity.IsAuthenticated)
         {
-            var householdResponse = await _householdService.Get();
-            households = householdResponse.ToList();
-            household = households.First();
-
-            foreach (var u in household.Users)
-            {
-                if (AppState.CurrentUser.Username == u.Username)
-                {
-                    AppState.SetCurrentUser(u);
-                }
-            }
-
-            currentUser = AppState.CurrentUser;
+            household = await _householdService.Get();
         }
 
+        selectedHousehold = household.Id;
+
         householdLoading = false;
+
+        this.StateHasChanged();
     }
 
-    private async Task SwitchHousehold()
+    private async Task SwitchHousehold(string id)
     {
-        await _householdService.Switch();
+        selectedHousehold = id;
+        await _householdService.Switch(id);
         _navigationManager.NavigateTo($"{_navigationManager.BaseUri}household", true);
     }
 }

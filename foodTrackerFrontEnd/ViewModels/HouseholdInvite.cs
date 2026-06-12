@@ -5,8 +5,10 @@ namespace foodTrackerFrontEnd.ViewModels
 {
     public class HouseholdInvite
     {
+        public string Id { get; set; }
+
         [Required, EmailAddress]
-        public string Email { get; set; }
+        public string Recipient { get; set; }
 
         public bool Accepted { get; set; }
 

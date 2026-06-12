@@ -10,11 +10,8 @@
 <MudNavMenu>
     <AuthorizeView>
         <Authorized>
-            @*<MudNavLink Href="/" Match="NavLinkMatch.All">Home</MudNavLink>*@
+            <MudNavLink Icon="@Icons.Material.Filled.House" Href="/" Match="NavLinkMatch.All">Home</MudNavLink>
             <MudNavGroup Icon="@Icons.Material.Filled.Kitchen" Title="Storage" Expanded="true">
-                <MudNavLink Icon="@Icons.Material.Filled.Add" OnClick="@(() => OpenAddStorageDialog())">Add</MudNavLink>
-                <MudNavLink Match="NavLinkMatch.All"  Href="/storage" Icon="@Icons.Material.Filled.EditNote">Manage</MudNavLink>
-                <MudDivider Class="my-2" />
                 @if (storageLoading)
                     {
                         <MudNavLink>
@@ -28,9 +25,14 @@
                             <MudNavLink Class="small-nav-icon" href="@($"storage/{storage.Name.ToLower()}")"> @storage.Name</MudNavLink>
                         }   
                     }
+            @* <MudDivider Class="my-2" /> *@
             </MudNavGroup>
             @*<MudNavLink Href="#" Match="NavLinkMatch.Prefix">Account</MudNavLink>*@
-            <MudNavLink Icon="@Icons.Material.Filled.House" Href="/household" Match="NavLinkMatch.Prefix">Household</MudNavLink>
+            <MudNavGroup Icon="@Icons.Material.Filled.Settings" Title="Options">
+                <MudNavLink Icon="@Icons.Material.Filled.Add" OnClick="@(() => OpenAddStorageDialog())">Add Storage</MudNavLink>
+                <MudNavLink Match="NavLinkMatch.All" Href="/storage" Icon="@Icons.Material.Filled.EditNote">Manage Storage</MudNavLink>
+                <MudNavLink Icon="@Icons.Material.Filled.People" Href="/household" Match="NavLinkMatch.Prefix">Manage Household</MudNavLink>
+            </MudNavGroup>
             <MudNavLink Icon="@Icons.Material.Filled.Logout" Href="/logout" Match="NavLinkMatch.Prefix">Logout</MudNavLink>
         </Authorized>
         <NotAuthorized>

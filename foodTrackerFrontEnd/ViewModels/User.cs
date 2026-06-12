@@ -5,7 +5,9 @@ namespace foodTrackerFrontEnd.Models
 {
     public class User
     {
-        public string HouseholdId { get; set; }
+        [JsonPropertyName("custom:householdId")]
+        [JsonProperty("custom:householdId")]
+        public string CurrentHousehold { get; set; }
 
         [JsonPropertyName("given_name")]
         [JsonProperty("given_name")]
@@ -19,6 +21,13 @@ namespace foodTrackerFrontEnd.Models
 
         public string Username { get; set; }
 
-        public bool IsHouseholdAdmin { get; set; }
+        public List<Household> Households { get; set; } = new List<Household>();
+
+        public List<string> HouseholdsAsAdmin { get; set; } = new List<string>();
+
+        public bool IsHouseholdAdmin(string householdId)
+        {
+            return HouseholdsAsAdmin.Contains(householdId);
+        }
     }
 }

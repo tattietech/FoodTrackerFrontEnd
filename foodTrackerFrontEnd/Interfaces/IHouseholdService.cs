@@ -5,7 +5,7 @@ namespace foodTrackerFrontEnd.Interfaces
 {
     public interface IHouseholdService
     {
-        Task<IEnumerable<Household>> Get();
+        Task<Household> Get();
         Task SendInvite(HouseholdInvite invite);
         Task<IEnumerable<HouseholdInvite>> GetInvites();
 
@@ -13,6 +13,6 @@ namespace foodTrackerFrontEnd.Interfaces
 
         Task DeclineInvite(string inviteId);
 
-        Task Switch();
+        Task Switch(string id);
     }
 }
